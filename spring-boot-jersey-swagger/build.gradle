@@ -28,10 +28,10 @@ configurations {
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-jersey')
-	compile('org.springframework.boot:spring-boot-starter-web')
+	compile	'org.springframework.boot:spring-boot-starter-jersey'
+	compile 'org.springframework.boot:spring-boot-starter-web'
 	
 	compile 'io.swagger:swagger-jersey2-jaxrs:1.5.3'
-	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	providedRuntime	'org.springframework.boot:spring-boot-starter-tomcat'
+	
 }

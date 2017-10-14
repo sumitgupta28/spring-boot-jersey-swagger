@@ -1,60 +1,53 @@
 package com.sample.boot;
 
-import javax.ws.rs.core.MediaType;
+import javax.annotation.PostConstruct;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
+import org.glassfish.jersey.server.wadl.internal.WadlResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 @Component
 public class JerseyConfig extends ResourceConfig {
 
+	@Value("${spring.jersey.application-path:/}")
+	private String apiPath;
+
 	public JerseyConfig() {
-		registerJackson();
-		packages("com.sample.boot");
+		// Register endpoints, providers, ...
+		this.registerEndpoints();
 	}
 
-	private void registerJackson() {
-		ObjectMapper mapper = new ObjectMapper();
+	@PostConstruct
+	public void init() {
+		// Register components where DI is needed
+		this.configureSwagger();
+	}
 
-		// customize ObjectMapper
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
-
-		// create JsonProvider to provide custom ObjectMapper
-		JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-		provider.setMapper(mapper);
-
-		register(provider);
-		register(RequestContextFilter.class);
-		property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
-		configureSwagger();
+	private void registerEndpoints() {
+		this.packages("com.sample.boot");
+		// Access through /<Jersey's servlet path>/application.wadl
+		this.register(WadlResource.class);
 	}
 
 	private void configureSwagger() {
-		register(ApiListingResource.class);
-		BeanConfig beanConfig = new BeanConfig();
-		beanConfig.setVersion("1.0.0");
-		beanConfig.setSchemes(new String[] { "http" });
-		beanConfig.setHost("localhost:8080");
-		beanConfig.setBasePath("/app");
-		beanConfig.setTitle("spring-boot-jersey-swagger");
-		beanConfig.setDescription("spring-boot-jersey-swagger");
-		beanConfig.getSwagger().addConsumes(MediaType.APPLICATION_JSON);
-		beanConfig.getSwagger().addProduces(MediaType.APPLICATION_JSON);
-		beanConfig.setContact("Sumit");
-		beanConfig.setResourcePackage("com.sample.boot");
-		beanConfig.setPrettyPrint(false);
-		beanConfig.setScan(true);
+		// Available at localhost:port/api/swagger.json
+		this.register(ApiListingResource.class);
+		this.register(SwaggerSerializers.class);
+
+		BeanConfig config = new BeanConfig();
+		config.setTitle("Spring Boot + Jersey + Swagger");
+		config.setVersion("v1");
+		config.setContact("Sumit");
+		config.setSchemes(new String[] { "http", "https" });
+		config.setBasePath(this.apiPath);
+		config.setResourcePackage("com.sample.boot");
+		config.setPrettyPrint(true);
+		config.setScan(true);
 	}
 
 }
