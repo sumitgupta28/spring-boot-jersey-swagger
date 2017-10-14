@@ -1,0 +1,27 @@
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+**/*.log
+**/*.copyarea.db
+**/*.keep
+**/target/
+**/*.contrib*
+*.class
+*.war
+**/.classpath
+**/.project
+**/.settings/*
+**/.metadata
+**/generated/*
+/build/
+.gradle/
+**/bin/
+**/libs/
